@@ -10,11 +10,14 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ListView
 import android.support.v7.widget.Toolbar
+import android.widget.Toast
+import com.example.bdobre.testkotlin.bikeUtils.BikeAdapter
+import com.example.bdobre.testkotlin.bikeUtils.BikeLocation
 import com.example.bdobre.testkotlin.drawerUtils.DataModel
 import com.example.bdobre.testkotlin.drawerUtils.DrawerItemCustomAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), BikeAdapter.BikeAdapterOnClickHandler {
 
     lateinit var mDrawerList: ListView
     lateinit var mNavigationDrawerItemTitles: Array<String>
@@ -92,5 +95,9 @@ class MainActivity : AppCompatActivity() {
     internal fun setupDrawerToggle() {
         mDrawerToggle = ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.app_name, R.string.app_name)
         mDrawerToggle.syncState()
+    }
+
+    override fun onClick(bikeData: BikeLocation?) {
+        Toast.makeText(this, bikeData?.name, Toast.LENGTH_SHORT).show()
     }
 }
