@@ -2,6 +2,7 @@ package com.example.bdobre.testkotlin
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
@@ -16,9 +17,18 @@ import com.example.bdobre.testkotlin.bikeUtils.BikeDetailsFragment
 import com.example.bdobre.testkotlin.bikeUtils.BikeLocation
 import com.example.bdobre.testkotlin.drawerUtils.DataModel
 import com.example.bdobre.testkotlin.drawerUtils.DrawerItemCustomAdapter
+import com.example.bdobre.testkotlin.weatherUtils.ConsolidatedWeather
+import com.example.bdobre.testkotlin.weatherUtils.WeatherAdapter
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import kotlinx.android.synthetic.main.activity_main.*
+import android.Manifest;
+import android.content.pm.PackageManager
+import android.location.Location
+import android.os.Build
+import com.google.android.gms.tasks.OnSuccessListener
 
-class MainActivity : AppCompatActivity(), BikeAdapter.BikeAdapterOnClickHandler {
+class MainActivity : AppCompatActivity(), BikeAdapter.BikeAdapterOnClickHandler, WeatherAdapter.WeatherAdapterOnClickHandler {
 
     lateinit var mDrawerList: ListView
     lateinit var mNavigationDrawerItemTitles: Array<String>
@@ -27,6 +37,9 @@ class MainActivity : AppCompatActivity(), BikeAdapter.BikeAdapterOnClickHandler 
     lateinit var mDrawerTitle: CharSequence
     lateinit var mToolbar: android.support.v7.widget.Toolbar
     lateinit var mDrawerToggle: android.support.v7.app.ActionBarDrawerToggle
+    var currentLat = 0.0
+    var currentLong = 0.0
+    lateinit var mFusedLocationClient : FusedLocationProviderClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,9 +69,11 @@ class MainActivity : AppCompatActivity(), BikeAdapter.BikeAdapterOnClickHandler 
         setupDrawerToggle()
         mDrawerLayout.setDrawerListener(mDrawerToggle)
 
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
 
         supportFragmentManager.beginTransaction().replace(R.id.content_frame, CityBikeFragment() as Fragment).commit()
-
+        getLocation()
 
     }
 
@@ -72,7 +87,13 @@ class MainActivity : AppCompatActivity(), BikeAdapter.BikeAdapterOnClickHandler 
         var fragment:Fragment? = null
         when(position){
             0 -> fragment = CityBikeFragment() as Fragment
-            1 -> fragment = WeatherFragment() as Fragment
+            1 -> {
+                fragment = WeatherFragment() as Fragment
+                val bundle = Bundle()
+                bundle.putDouble("longitude",currentLong);
+                bundle.putDouble("latitude",currentLat);
+                fragment.arguments = bundle
+                }
             2 -> fragment = GOTFragment() as Fragment
         }
         if (fragment != null){
@@ -113,5 +134,27 @@ class MainActivity : AppCompatActivity(), BikeAdapter.BikeAdapterOnClickHandler 
         supportFragmentManager.beginTransaction().replace(R.id.content_frame,fragment).commit()
 
         Toast.makeText(this, bikeData?.name, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onClick(weatherData: ConsolidatedWeather?) {
+        Toast.makeText(this, weatherData?.weatherStateName, Toast.LENGTH_SHORT).show()
+    }
+
+    fun getLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.INTERNET)
+                        ,10)
+            }
+            return
+        }
+        mFusedLocationClient.lastLocation.addOnSuccessListener(this, object : OnSuccessListener<Location> {
+            override fun onSuccess(location: Location?) {
+                if (location != null) {
+                    currentLat = location.latitude
+                    currentLong = location.longitude
+                }
+            }
+        })
     }
 }

@@ -6,4 +6,6 @@
         <item>Weather</item>
         <item>Game of Thrones</item>
     </string-array>
+
+    <string name="search_title">Search</string>
 </resources>
