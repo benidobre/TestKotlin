@@ -11,15 +11,15 @@ class Location {
 
     @SerializedName("city")
     @Expose
-    var city: String? = null
+    var city: String = ""
     @SerializedName("country")
     @Expose
-    var country: String? = null
+    var country: String = ""
     @SerializedName("latitude")
     @Expose
-    var latitude: Double? = null
+    var latitude: Double = 0.0
     @SerializedName("longitude")
     @Expose
-    var longitude: Double? = null
+    var longitude: Double = 0.0
 
 }

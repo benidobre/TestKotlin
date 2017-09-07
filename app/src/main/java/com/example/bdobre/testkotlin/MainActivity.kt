@@ -12,6 +12,7 @@ import android.widget.ListView
 import android.support.v7.widget.Toolbar
 import android.widget.Toast
 import com.example.bdobre.testkotlin.bikeUtils.BikeAdapter
+import com.example.bdobre.testkotlin.bikeUtils.BikeDetailsFragment
 import com.example.bdobre.testkotlin.bikeUtils.BikeLocation
 import com.example.bdobre.testkotlin.drawerUtils.DataModel
 import com.example.bdobre.testkotlin.drawerUtils.DrawerItemCustomAdapter
@@ -98,6 +99,19 @@ class MainActivity : AppCompatActivity(), BikeAdapter.BikeAdapterOnClickHandler 
     }
 
     override fun onClick(bikeData: BikeLocation?) {
+        val fragment = BikeDetailsFragment()
+        val bundle = Bundle()
+        bundle.putString("name", bikeData?.name)
+        val location = bikeData?.location
+        if(location !=  null) {
+            bundle.putString("city", location.city)
+            bundle.putString("country", location.country)
+            bundle.putDouble("longitude", location.longitude)
+            bundle.putDouble("latitude", location.latitude)
+        }
+        fragment.arguments = bundle
+        supportFragmentManager.beginTransaction().replace(R.id.content_frame,fragment).commit()
+
         Toast.makeText(this, bikeData?.name, Toast.LENGTH_SHORT).show()
     }
 }
