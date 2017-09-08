@@ -44,7 +44,7 @@ class WeatherFragment : Fragment(), SearchView.OnQueryTextListener {
 
         cityName = rootView.weather_city_name
         listView = rootView.listview_weather
-        cityAdapter = CitySearchAdapter(context, emptyList())
+        cityAdapter = CitySearchAdapter(context, ArrayList<CitySearch>())
         listView.adapter = cityAdapter
         listView.isTextFilterEnabled = true
         listView.setOnItemClickListener(object : AdapterView.OnItemClickListener {
