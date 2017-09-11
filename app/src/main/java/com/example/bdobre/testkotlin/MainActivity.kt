@@ -26,9 +26,13 @@ import android.Manifest;
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Build
+import com.example.bdobre.testkotlin.GOTUtils.*
 import com.google.android.gms.tasks.OnSuccessListener
+import java.util.ArrayList
 
-class MainActivity : AppCompatActivity(), BikeAdapter.BikeAdapterOnClickHandler, WeatherAdapter.WeatherAdapterOnClickHandler {
+class MainActivity : AppCompatActivity(), BikeAdapter.BikeAdapterOnClickHandler, WeatherAdapter.WeatherAdapterOnClickHandler,
+                BooksAdapter.BooksAdapterOnClickHandler, CharactersAdapter.CharacterOnClickHandler, HousesAdapter.HouseAdapterOnClickHandler{
+
 
     lateinit var mDrawerList: ListView
     lateinit var mNavigationDrawerItemTitles: Array<String>
@@ -138,6 +142,65 @@ class MainActivity : AppCompatActivity(), BikeAdapter.BikeAdapterOnClickHandler,
 
     override fun onClick(weatherData: ConsolidatedWeather?) {
         Toast.makeText(this, weatherData?.weatherStateName, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onClick(book: Book?) {
+        var bundle = Bundle()
+        var listCharacters = book?.characters
+        if(listCharacters != null){
+            var characters = IntArray(listCharacters?.size ?: 0)
+            var i = 0
+            for(ch in listCharacters) {
+                var id = ch.subSequence("https://www.anapioficeandfire.com/api/characters/".length, ch.length)
+                characters[i++] = id.toString().toInt()
+            }
+            bundle.putIntArray("characters",characters)
+        }
+        var fragment = CharactersFragment()
+        fragment.arguments = bundle
+        supportFragmentManager.beginTransaction().replace(R.id.content_frame,fragment).commit()
+
+    }
+
+    override fun onClick(house: House?) {
+        var bundle = Bundle()
+        if(house != null) {
+            var listCharacters = house.swornMembers
+            if(!house.currentLord.isEmpty()) {
+                listCharacters.add(0, house.currentLord)
+            }
+            if(!house.heir.isEmpty()) {
+                listCharacters.add(0, house.heir)
+            }
+            if(!house.founder.isEmpty()) {
+                listCharacters.add(0, house.founder)
+            }
+
+
+            var characters = IntArray(listCharacters.size)
+            var i = 0
+            for(ch in listCharacters) {
+                var id = ch.subSequence("https://www.anapioficeandfire.com/api/characters/".length, ch.length)
+                characters[i++] = id.toString().toInt()
+            }
+            bundle.putIntArray("characters",characters)
+
+        }
+        var fragment = CharactersFragment()
+        fragment.arguments = bundle
+        supportFragmentManager.beginTransaction().replace(R.id.content_frame,fragment).commit()
+    }
+
+    override fun onClick(character: Character?) {
+        var bundle = Bundle()
+        bundle.putString("name", character?.name)
+        bundle.putString("born",character?.born)
+        var id = character?.url?.subSequence("https://www.anapioficeandfire.com/api/characters/".length, character.url.length)
+        bundle.putInt("id", id.toString().toInt())
+        bundle.putStringArrayList("aliases",character?.aliases as ArrayList<String>)
+        var fragment = CharacterDetailsFragment()
+        fragment.arguments = bundle
+        supportFragmentManager.beginTransaction().replace(R.id.content_frame,fragment).commit()
     }
 
     fun getLocation() {
